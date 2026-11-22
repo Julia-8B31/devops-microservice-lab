@@ -1,0 +1,196 @@
+{
+	"info": {
+		"_postman_id": "a90df1a0-5c62-4f3b-bcf2-19e59d9c0201",
+		"name": "DevOps Microservice Lab - Tasks API",
+		"description": "Коллекция запросов для проверки микросервиса задач (FastAPI + PostgreSQL + Docker)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "0. Healthcheck",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/",
+					"host": ["{{baseUrl}}"],
+					"path": [""]
+				},
+				"description": "Проверка доступности микросервиса"
+			},
+			"response": []
+		},
+		{
+			"name": "1. POST - Создать задачу 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"if (jsonData.id) {",
+							"    pm.collectionVariables.set('taskId', jsonData.id);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Сдать лабораторную работу по микросервисам\",\n    \"description\": \"Реализовать REST API, multi-stage Dockerfile, docker-compose и коллекцию Postman\",\n    \"is_completed\": false\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/tasks/",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "v1", "tasks", ""]
+				},
+				"description": "Создание новой задачи (код 201 Created)"
+			},
+			"response": []
+		},
+		{
+			"name": "2. POST - Создать задачу 2",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Оформить отчет по ЛР\",\n    \"description\": \"Вставить скриншоты Swagger, Postman и работы контейнеров\",\n    \"is_completed\": false\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/tasks/",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "v1", "tasks", ""]
+				},
+				"description": "Создание второй задачи"
+			},
+			"response": []
+		},
+		{
+			"name": "3. GET - Получить все задачи",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/tasks/",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "v1", "tasks", ""]
+				},
+				"description": "Получение списка всех задач из базы данных (код 200 OK)"
+			},
+			"response": []
+		},
+		{
+			"name": "4. GET - Получить задачу по ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/tasks/{{taskId}}",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "v1", "tasks", "{{taskId}}"]
+				},
+				"description": "Получение одной задачи по её идентификатору (код 200 OK)"
+			},
+			"response": []
+		},
+		{
+			"name": "5. PUT - Обновить задачу",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Сдать лабораторную работу по микросервисам (Выполнено)\",\n    \"is_completed\": true\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/tasks/{{taskId}}",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "v1", "tasks", "{{taskId}}"]
+				},
+				"description": "Обновление задачи (код 200 OK)"
+			},
+			"response": []
+		},
+		{
+			"name": "6. DELETE - Удалить задачу",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/tasks/{{taskId}}",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "v1", "tasks", "{{taskId}}"]
+				},
+				"description": "Удаление задачи по идентификатору (код 200 OK)"
+			},
+			"response": []
+		},
+		{
+			"name": "7. Ошибка 404 - Запрос несуществующей задачи",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/tasks/99999",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "v1", "tasks", "99999"]
+				},
+				"description": "Проверка обработки ошибки 404 Not Found"
+			},
+			"response": []
+		},
+		{
+			"name": "8. Ошибка 422 - Валидация (пустой заголовок)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"\",\n    \"description\": \"Некорректная задача с пустой строкой в заголовке\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/tasks/",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "v1", "tasks", ""]
+				},
+				"description": "Проверка валидации: при пустом заголовке возвращается 422 Unprocessable Entity"
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8000"
+		},
+		{
+			"key": "taskId",
+			"value": "1"
+		}
+	]
+}
