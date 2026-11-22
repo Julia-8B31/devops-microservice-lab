@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: devops_postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-tasks_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tasks_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - microservice_net
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: devops_fastapi_app
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      POSTGRES_SERVER: db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-tasks_db}
+    ports:
+      - "8000:8000"
+    networks:
+      - microservice_net
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  microservice_net:
+    driver: bridge
